@@ -5,10 +5,21 @@ import (
 	"fmt"
 	"io/ioutil"
 	"supermarket/app/internal"
+	"supermarket/app/internal/application"
+	handler "supermarket/app/internal/handlers"
+	"supermarket/app/internal/services"
+
+	"github.com/fatih/color"
 )
 
-// Function created to load the JSON file into the program and return an slice
-func loadJSON(path string) ([]string, error) {
+var (
+	green = color.New(color.FgGreen).SprintFunc()
+	red   = color.New(color.FgRed).SprintFunc()
+)
+
+// Function created to load the JSON file into the program and return a slice of strings
+// Function created to load the JSON file into the program and return a slice of Products
+func loadJSON(path string) ([]internal.Products, error) {
 	// slice to save the data
 	var p []internal.Products
 
@@ -20,22 +31,49 @@ func loadJSON(path string) ([]string, error) {
 		return nil, err
 	}
 
-	// Save the data into the slice and return it
 	// Unmarshal the data into the slice
-
 	err = json.Unmarshal(file, &p)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(p)
-	return nil, nil
+	// Return the slice of Products
+	return p, nil
 }
 func main() {
+
+	// _________________________________
+
+	// Solution for the first task
+	fmt.Println(green("Leyendo los archivos JSON..."))
 	data, err := loadJSON("/Users/agutierrezme/Desktop/MateoCodes/Go_web_meli/supermarket/app/internal/data/products.json")
 
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(red(err))
+
 	}
+	// Save all the data in the ProductsRepository
+	// Save all the data in the ProductsRepository
+	productsRepository := internal.NewProductsRepository()
+
+	for _, product := range data {
+		productsRepository.AddNewProduct(product)
+	}
+	fmt.Println(green("Los archivos JSON se leyeron correctamente"))
+
+	// _________________________________
+
+	// Create the products service with the repository
+	productsService := services.NewProductsDefaultService(*productsRepository)
+	productsHandler := handler.NewProductsDefault(productsService)
+
+	// Solution for the second task
+
+	// Create the server
+	server := &application.Server{}
+	server = server.CreateServer("")
+	server.Router.HandleFunc("/products", productsHandler.ProductsHandler).Methods("GET")
+	server.Run()
+
 	fmt.Println(data)
 }
