@@ -1,5 +1,5 @@
 // Script to show the products structure
-package intenal
+package internal
 
 type Products struct {
 	Id          int     `json:"id"`
