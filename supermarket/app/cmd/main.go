@@ -73,7 +73,7 @@ func main() {
 	server := &application.Server{}
 	server = server.CreateServer("")
 	server.Router.HandleFunc("/products", productsHandler.ProductsHandler).Methods("GET")
+	server.Router.HandleFunc("/products/id", productsHandler.ProductByIDHandler).Methods("GET")
 	server.Run()
 
-	fmt.Println(data)
 }

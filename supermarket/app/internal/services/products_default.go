@@ -31,3 +31,17 @@ func (p *ProductsDefault) GetProducts() ([]internal.Products, error) {
 	fmt.Println("GetProducts", products)
 	return products, nil
 }
+
+func (p *ProductsDefault) GetProductById(id int) (internal.Products, error) {
+	// External services
+	// ...
+
+	// Business logic
+	// -validate the request
+	product, err := p.rp.GetProductById(id)
+	if err != nil {
+		return internal.Products{}, err
+	}
+	fmt.Println("GetProductById", product)
+	return product, nil
+}

@@ -2,6 +2,8 @@
 
 package internal
 
+import "fmt"
+
 // ProductsRepository is the repository for the products handler
 type ProductsRepository struct {
 	products []Products
@@ -20,4 +22,16 @@ func (p *ProductsRepository) AddNewProduct(product Products) {
 // Function to get all the products
 func (p *ProductsRepository) GetProducts() ([]Products, error) {
 	return p.products, nil
+}
+
+// Function to get a product by id
+
+func (p *ProductsRepository) GetProductById(id int) (Products, error) {
+	// Iterate over the products slice and return the product if the id matches
+	for _, product := range p.products {
+		if product.Id == id {
+			return product, nil
+		}
+	}
+	return Products{}, fmt.Errorf("product not found")
 }

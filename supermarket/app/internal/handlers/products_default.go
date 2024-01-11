@@ -3,6 +3,7 @@ package internal
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"supermarket/app/internal/services"
 )
 
@@ -42,4 +43,35 @@ func (h *ProductsDefault) ProductsHandler(w http.ResponseWriter, r *http.Request
 	// Write the jsonProducts to the response
 	w.Write(jsonProducts)
 
+}
+
+// ProductByIDHandler is the handler for the product by id endpoint
+
+func (h *ProductsDefault) ProductByIDHandler(w http.ResponseWriter, r *http.Request) {
+	// Get the id from the query string
+	idStr := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	// Get the product from the service layer.
+	product, err := h.sv.GetProductById(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Convert the product to JSON
+	jsonProduct, err := json.Marshal(product)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Write the response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonProduct)
 }
