@@ -9,39 +9,42 @@ import (
 
 // ProductsRepository is the repository for the products handler
 type ProductsRepository struct {
-	products []internal.Products
+	products map[int]internal.Products
 }
 
 // Function to create a new product repository
 func NewProductsRepository() *ProductsRepository {
-	return &ProductsRepository{}
+	return &ProductsRepository{
+		products: make(map[int]internal.Products),
+	}
 }
 
 // Function to add a new product to the repository
 func (p *ProductsRepository) AddNewProduct(product internal.Products) {
-	p.products = append(p.products, product)
+	p.products[product.Id] = product
 }
 
 // Function to get all the products
 func (p *ProductsRepository) GetProducts() ([]internal.Products, error) {
-	return p.products, nil
+	products := make([]internal.Products, 0, len(p.products))
+	for _, product := range p.products {
+		products = append(products, product)
+	}
+	return products, nil
 }
 
 // Function to get a product by id
 func (p *ProductsRepository) GetProductById(id int) (internal.Products, error) {
-	// Iterate over the products slice and return the product if the id matches
-	for _, product := range p.products {
-		if product.Id == id {
-			return product, nil
-		}
+	product, ok := p.products[id] // Busca el producto en el mapa
+	if !ok {
+		return internal.Products{}, fmt.Errorf("product not found")
 	}
-	return internal.Products{}, fmt.Errorf("product not found")
+	return product, nil
 }
 
 // Function to get all the products by Price range (price>max
 func (p *ProductsRepository) GetProductsByPriceRange(priceInput float32) ([]internal.Products, error) {
-	// Iterate over the products slice and return the product if the id matches
-	var products []internal.Products
+	products := make([]internal.Products, 0)
 	for _, product := range p.products {
 		if priceInput <= product.Price {
 			products = append(products, product)
