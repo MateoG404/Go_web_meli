@@ -18,6 +18,8 @@ func NewProductsDefaultService(rp internal.ProductsRepository) *ProductsDefault 
 		rp: rp,
 	}
 }
+
+// GetProducts is the service for the products endpoint
 func (p *ProductsDefault) GetProducts() ([]internal.Products, error) {
 	// External services
 	// ...
@@ -32,6 +34,7 @@ func (p *ProductsDefault) GetProducts() ([]internal.Products, error) {
 	return products, nil
 }
 
+// GetProductById is the service for the product by id endpoint
 func (p *ProductsDefault) GetProductById(id int) (internal.Products, error) {
 	// External services
 	// ...
@@ -44,4 +47,21 @@ func (p *ProductsDefault) GetProductById(id int) (internal.Products, error) {
 	}
 	fmt.Println("GetProductById", product)
 	return product, nil
+}
+
+// GetProductsByPriceRange is the service for the products by price range endpoint
+func (p *ProductsDefault) GetProductsByPriceRange(price float32) ([]internal.Products, error) {
+	// External services
+	// ...
+
+	// Business logic
+	// Get the products using the method from the repository
+	products, err := p.rp.GetProductsByPriceRange(price)
+	// Verify if there is an error
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
+
 }

@@ -75,3 +75,40 @@ func (h *ProductsDefault) ProductByIDHandler(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonProduct)
 }
+
+// ProductRange is the handler for the product by price range endpoint
+
+func (h *ProductsDefault) ProductRange(w http.ResponseWriter, r *http.Request) {
+	// Get the price from the query string
+
+	pricestr := r.URL.Query().Get("price")
+
+	// Check if the price is a valid float
+	price, err := strconv.ParseFloat(pricestr, 32)
+	if err != nil {
+		http.Error(w, "Price inválido", http.StatusBadRequest)
+		return
+	}
+
+	// Get the products from the service layer
+
+	products, err := h.sv.GetProductsByPriceRange(float32(price))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Convert the products to JSON
+
+	jsonProducts, err := json.Marshal(products)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Write the response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonProducts)
+
+}

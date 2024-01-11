@@ -25,7 +25,6 @@ func (p *ProductsRepository) GetProducts() ([]Products, error) {
 }
 
 // Function to get a product by id
-
 func (p *ProductsRepository) GetProductById(id int) (Products, error) {
 	// Iterate over the products slice and return the product if the id matches
 	for _, product := range p.products {
@@ -34,4 +33,16 @@ func (p *ProductsRepository) GetProductById(id int) (Products, error) {
 		}
 	}
 	return Products{}, fmt.Errorf("product not found")
+}
+
+// Function to get all the products by Price range (price>max
+func (p *ProductsRepository) GetProductsByPriceRange(priceInput float32) ([]Products, error) {
+	// Iterate over the products slice and return the product if the id matches
+	var products []Products
+	for _, product := range p.products {
+		if priceInput <= product.Price {
+			products = append(products, product)
+		}
+	}
+	return products, nil
 }
