@@ -4,16 +4,17 @@ package services
 import (
 	"fmt"
 	"supermarket/app/internal"
+	repository "supermarket/app/internal/repository"
 )
 
 // ProductsDefault is the implementation in the services for the Products Handler
 type ProductsDefault struct {
 	// rp is the ProductsRepository
-	rp internal.ProductsRepository
+	rp repository.ProductsRepository
 }
 
 // Create a new ProductsDefault
-func NewProductsDefaultService(rp internal.ProductsRepository) *ProductsDefault {
+func NewProductsDefaultService(rp repository.ProductsRepository) *ProductsDefault {
 	return &ProductsDefault{
 		rp: rp,
 	}
@@ -30,7 +31,6 @@ func (p *ProductsDefault) GetProducts() ([]internal.Products, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("GetProducts", products)
 	return products, nil
 }
 

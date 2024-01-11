@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strconv"
 	"supermarket/app/internal/services"
+
+	"github.com/go-chi/chi/v5"
 )
 
 // Struct to create the products handler
@@ -49,7 +51,8 @@ func (h *ProductsDefault) ProductsHandler(w http.ResponseWriter, r *http.Request
 
 func (h *ProductsDefault) ProductByIDHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the id from the query string
-	idStr := r.URL.Query().Get("id")
+	idStr := chi.URLParam(r, "id")
+
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "ID inválido", http.StatusBadRequest)
