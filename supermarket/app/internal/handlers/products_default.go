@@ -4,10 +4,46 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"supermarket/app/internal"
+	repository "supermarket/app/internal/repository"
 	"supermarket/app/internal/services"
+	"supermarket/app/platform/web/response"
 
 	"github.com/go-chi/chi/v5"
 )
+
+// Struct to represent the Product JSON
+type ProductJSON struct {
+	Id          int     `json:"id"`
+	Name        string  `json:"name"`
+	Quantity    int     `json:"quantity"`
+	CodeValue   string  `json:"code_value"`
+	IsPublished bool    `json:"is_published"`
+	Expiration  string  `json:"expiration"`
+	Price       float32 `json:"price"`
+}
+
+// Struct for the Request
+type BodyRequestJSON struct {
+	Id          int     `json:"id"`
+	Name        string  `json:"name"`
+	Quantity    int     `json:"quantity"`
+	CodeValue   string  `json:"code_value"`
+	IsPublished bool    `json:"is_published"`
+	Expiration  string  `json:"expiration"`
+	Price       float32 `json:"price"`
+}
+
+// Struct for the Response
+type BodyResponseJSON struct {
+	Id          int     `json:"id"`
+	Name        string  `json:"name"`
+	Quantity    int     `json:"quantity"`
+	CodeValue   string  `json:"code_value"`
+	IsPublished bool    `json:"is_published"`
+	Expiration  string  `json:"expiration"`
+	Price       float32 `json:"price"`
+}
 
 // Struct to create the products handler
 
@@ -48,7 +84,6 @@ func (h *ProductsDefault) ProductsHandler(w http.ResponseWriter, r *http.Request
 }
 
 // ProductByIDHandler is the handler for the product by id endpoint
-
 func (h *ProductsDefault) ProductByIDHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the id from the query string
 	idStr := chi.URLParam(r, "id")
@@ -113,5 +148,72 @@ func (h *ProductsDefault) ProductRange(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonProducts)
+
+}
+
+// CreateProductInput is the handler for the create product endpoint
+func (h *ProductsDefault) CreateProductInput(w http.ResponseWriter, r *http.Request) {
+	// REQUEST
+
+	// Get the body request using the BodyRequest Struct
+
+	// Decode the body request and save it in a struct to use it later
+	var body BodyRequestJSON
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		// return the error in the response using the struct TextResponse
+		response.TextResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// PROCESS
+
+	// Validate the request
+	// All the fields are required, except is_published that is false by default
+
+	// First we need to serialize the body request to a product struct
+
+	if body.Name == "" || body.Quantity == 0 || body.CodeValue == "" || body.Expiration == "" || body.Price == 0 {
+		// Return the error using the struct TextResponse
+		response.TextResponse(w, http.StatusBadRequest, "All fields are required")
+		return
+	}
+
+	product := internal.Products{
+		Id:          body.Id,
+		Name:        body.Name,
+		Quantity:    body.Quantity,
+		CodeValue:   body.CodeValue,
+		IsPublished: body.IsPublished,
+		Expiration:  body.Expiration,
+		Price:       body.Price,
+	}
+
+	// Verify the Bussiness Rules
+
+	if err := h.sv.ValidateProductBussinessLogic(product); err != nil {
+		// Return the error using the struct TextResponse according to the error
+		switch err {
+		// Case 1: The id already exists OR The product is expired
+		case repository.ErrIdExists:
+			response.TextResponse(w, http.StatusPreconditionFailed, err.Error())
+		// Case 2: The product already exists
+		case repository.ErrProductExists:
+			response.TextResponse(w, http.StatusUnauthorized, err.Error())
+			// Case 3: The product is expired
+		case services.ErrInvalidDateFormat:
+			response.TextResponse(w, http.StatusBadRequest, err.Error())
+		}
+		return
+	}
+
+	// Save the product in the database
+	if err := h.sv.AddNewProductInput(product); err != nil {
+		response.TextResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// RESPONSE
+	response.JSON(w, http.StatusOK, product)
 
 }

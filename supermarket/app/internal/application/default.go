@@ -109,6 +109,10 @@ func (s *Server) Run() error {
 	// Use the product by price range handler
 	router.Get("/products/search", hd.ProductRange)
 
+	// Use the new handler to add a new product to the repository
+
+	router.Post("/products", hd.CreateProductInput)
+
 	// Run the server and listen to the port
 	http.ListenAndServe(s.address, router)
 	return nil
