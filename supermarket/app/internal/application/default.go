@@ -69,10 +69,11 @@ func (s *Server) Run() error {
 	// _________________________________
 	// Solution for the first task
 	fmt.Println(green("Leyendo los archivos JSON..."))
-	data, err := loadJSON("/Users/agutierrezme/Desktop/MateoCodes/Go_web_meli/supermarket/app/internal/data/products.json")
+	data, err := loadJSON("/Users/agutierrezme/Desktop/MateoCodes/Go_web_meli/supermarket/app/docs/db/products.json")
 
 	if err != nil {
-		fmt.Println(red(err))
+		fmt.Println(red("Error al leer los archivos JSON"))
+		return err
 	}
 
 	// Save all the data in the ProductsRepository
