@@ -136,7 +136,7 @@ func (h *ProductsDefault) ProductByIDHandler(w http.ResponseWriter, r *http.Requ
 	// Get the product from the service layer.
 	product, err := h.sv.GetProductById(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 

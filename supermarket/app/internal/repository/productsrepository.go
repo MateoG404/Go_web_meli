@@ -21,9 +21,9 @@ type ProductsRepository struct {
 }
 
 // Function to create a new product repository
-func NewProductsRepository() *ProductsRepository {
+func NewProductsRepository(products map[int]internal.Products) *ProductsRepository {
 	return &ProductsRepository{
-		products: make(map[int]internal.Products),
+		products: products,
 		lastId:   0,
 	}
 }

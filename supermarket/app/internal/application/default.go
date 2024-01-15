@@ -77,7 +77,7 @@ func (s *Server) Run() error {
 	}
 
 	// Save all the data in the ProductsRepository
-	productsRepository := repository.NewProductsRepository()
+	productsRepository := repository.NewProductsRepository(make(map[int]internal.Products))
 
 	for _, product := range data {
 		productsRepository.AddNewProduct(product)
