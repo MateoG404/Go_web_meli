@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"supermarket/app/internal"
 	repository "supermarket/app/internal/repository"
 	services "supermarket/app/internal/services"
@@ -39,6 +40,8 @@ func NewRequest(method, url string, body io.Reader, urlParams map[string]string,
 		// Add the context to the request
 		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, ctx))
 	}
+	// Add the token to the request
+	//req.Header.Set("Token", "123456")
 	return req
 
 }
@@ -155,5 +158,109 @@ func TestProductsGetById(t *testing.T) {
 		// - Verify the body
 		bodyBytes, _ = ioutil.ReadAll(w.Body)
 		require.Equal(t, expectedBody, string(bodyBytes))
+	})
+}
+
+// Test for the handler CreateProductInput
+
+func TestCreateProductInput(t *testing.T) {
+	// Test for the handler CreateProductInput with success and fail
+	t.Run("Success Create product", func(t *testing.T) {
+
+		// ARRANGE
+		// - Configurate database
+		db := map[int]internal.Products{}
+
+		// - Configurate the repository
+		rp := repository.NewProductsRepository(db)
+
+		// - Configurate the service
+		sv := services.NewProductsDefaultService(*rp)
+
+		// - Configurate the handler
+
+		hd := NewProductsDefault(sv)
+
+		// ACT
+
+		// Configurate the request
+
+		body := strings.NewReader(`{
+			"id": 501,
+			"name": "prueba",
+			"quantity":400,
+			"code_value":"Asdff",
+			"is_published":true,
+			"expiration":"07/08/2003",
+			"price":900.034
+		}`)
+
+		r := NewRequest(http.MethodPost, "/products", body, nil, nil)
+		w := httptest.NewRecorder()
+		w.Header().Set("Content-Type", "application/json")
+
+		hd.CreateProductInput(w, r)
+		// ASSERT
+
+		// - Expected code,body and header
+		// - Expected code,body and header
+		expectedCode := http.StatusOK
+		expectedBody, _ := ioutil.ReadAll(body) // Convert body to string
+
+		expectedHeader := http.Header{"Content-Type": []string{"application/json"}}
+
+		// - Verify the code
+		require.Equal(t, expectedCode, w.Code)
+		// - Verify the body
+		bodyBytes, _ := ioutil.ReadAll(w.Body)
+		require.Equal(t, string(expectedBody), string(bodyBytes)) // Compare as strings
+		// - Verify the header-
+		require.Equal(t, expectedHeader, w.Header())
+	})
+
+	// Test created to fail
+	t.Run("Fail Create product", func(t *testing.T) {
+
+		// ARRANGE
+		// - Configurate database
+		db := map[int]internal.Products{}
+
+		// - Configurate the repository
+		rp := repository.NewProductsRepository(db)
+
+		// - Configurate the service
+		sv := services.NewProductsDefaultService(*rp)
+
+		// - Configurate the handler
+
+		hd := NewProductsDefault(sv)
+
+		// ACT
+
+		// Configurate the request
+
+		body := strings.NewReader(`{}`)
+
+		r := NewRequest(http.MethodPost, "/products", body, nil, nil)
+		w := httptest.NewRecorder()
+		w.Header().Set("Content-Type", "application/json")
+
+		hd.CreateProductInput(w, r)
+		// ASSERT
+
+		// - Expected code,body and header
+		// - Expected code,body and header
+		expectedCode := http.StatusBadRequest
+		expectedBody, _ := ioutil.ReadAll(strings.NewReader(`All fields are required`)) // Convert body to string
+
+		expectedHeader := http.Header{"Content-Type": []string{"text/plain; charset=utf-8"}}
+
+		// - Verify the code
+		require.Equal(t, expectedCode, w.Code)
+		// - Verify the body
+		bodyBytes, _ := ioutil.ReadAll(w.Body)
+		require.Equal(t, string(expectedBody), string(bodyBytes)) // Compare as strings
+		// - Verify the header-
+		require.Equal(t, expectedHeader, w.Header())
 	})
 }
