@@ -34,6 +34,18 @@ type BodyRequestJSON struct {
 	Price       float32 `json:"price"`
 }
 
+// Struct for the RequestPatch
+
+type BodyRequestPatchJSON struct {
+	Id          *int     `json:"id"`
+	Name        *string  `json:"name"`
+	Quantity    *int     `json:"quantity"`
+	CodeValue   *string  `json:"code_value"`
+	IsPublished *bool    `json:"is_published"`
+	Expiration  *string  `json:"expiration"`
+	Price       *float32 `json:"price"`
+}
+
 // Struct for the Response
 type BodyResponseJSON struct {
 	Id          int     `json:"id"`
@@ -265,4 +277,70 @@ func (h *ProductsDefault) CreateOrUpdateProduct(w http.ResponseWriter, r *http.R
 		return
 	}
 	response.JSON(w, http.StatusOK, product)
+}
+
+func (h *ProductsDefault) PatchProduct(w http.ResponseWriter, r *http.Request) {
+
+	// REQUEST
+
+	// Get the id from the query string
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+
+	if err != nil {
+		response.TextResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	// Get the body request using the BodyRequest Struct
+	var body BodyRequestPatchJSON
+
+	// Decode the body request and save it in a struct to use it later
+
+	err = json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		response.TextResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// PROCESS
+	// Send the body and the id to the service layer
+
+	// Get the existing product from the database
+	existingProduct, err := h.sv.GetProductById(id)
+
+	if err != nil {
+		response.TextResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// Update only the fields that were sent in the body
+	if body.Name != nil {
+		existingProduct.Name = *body.Name
+	}
+	if body.Quantity != nil {
+		existingProduct.Quantity = *body.Quantity
+	}
+	if body.CodeValue != nil {
+		existingProduct.CodeValue = *body.CodeValue
+	}
+	if body.IsPublished != nil {
+		existingProduct.IsPublished = *body.IsPublished
+	}
+	if body.Expiration != nil {
+		existingProduct.Expiration = *body.Expiration
+	}
+	if body.Price != nil {
+		existingProduct.Price = *body.Price
+	}
+
+	// Save the product in the database using the service layer
+	err = h.sv.CreateOrUpdateProduct(existingProduct)
+	// RESPONSE
+
+	if err != nil {
+		response.TextResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	response.JSON(w, http.StatusOK, existingProduct)
+
 }

@@ -116,6 +116,9 @@ func (s *Server) Run() error {
 	// Use the update handler to update a product in the repository
 	router.Put("/products/{id}", hd.CreateOrUpdateProduct)
 
+	// Use the patch handler to update a product in the repository
+	router.Patch("/products/{id}", hd.PatchProduct)
+
 	// Run the server and listen to the port
 	http.ListenAndServe(s.address, router)
 	return nil
