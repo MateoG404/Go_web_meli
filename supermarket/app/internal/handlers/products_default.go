@@ -217,3 +217,52 @@ func (h *ProductsDefault) CreateProductInput(w http.ResponseWriter, r *http.Requ
 	response.JSON(w, http.StatusOK, product)
 
 }
+
+// Create or Update Product is the handler for the create or update product endpoint
+
+func (h *ProductsDefault) CreateOrUpdateProduct(w http.ResponseWriter, r *http.Request) {
+
+	// REQUEST
+
+	// - Get the body request using the BodyRequest Struct
+	var body BodyRequestJSON
+
+	// - Decode the body request and save it in a struct to use it later
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+
+	if err != nil { // Error decodign the body request
+		response.TextResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	// Verify all the fields are required
+
+	if body.Name == "" || body.Quantity == 0 || body.CodeValue == "" || body.Expiration == "" || body.Price == 0 {
+		response.TextResponse(w, http.StatusBadRequest, "All fields are required")
+	}
+	// PROCESS
+
+	// - Validate the request using the service layer
+	// - If the product exists, update it
+	// - If the product doesn't exist, create it
+
+	// - Save the product in the database using the service layer
+	product := internal.Products{
+		Id:          body.Id,
+		Name:        body.Name,
+		Quantity:    body.Quantity,
+		CodeValue:   body.CodeValue,
+		IsPublished: body.IsPublished,
+		Expiration:  body.Expiration,
+		Price:       body.Price,
+	}
+
+	err = h.sv.CreateOrUpdateProduct(product)
+	// RESPONSE
+
+	if err != nil {
+		response.TextResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	response.JSON(w, http.StatusOK, product)
+}

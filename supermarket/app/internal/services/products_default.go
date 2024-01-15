@@ -2,6 +2,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"supermarket/app/internal"
 	repository "supermarket/app/internal/repository"
@@ -104,4 +105,39 @@ func (p *ProductsDefault) ValidateProductBussinessLogic(product internal.Product
 		return ErrInvalidDateFormat
 	}
 	return
+}
+
+func (p *ProductsDefault) CreateOrUpdateProduct(product internal.Products) error {
+	// External services
+
+	// Business logic
+
+	// -verify if the product already exists
+
+	new_id, temp_bool, err := p.rp.IdExists(product.Id, product.CodeValue)
+
+	switch {
+	case errors.Is(err, repository.ErrIdExists):
+		fmt.Println("Existe y se debe actualizar", new_id, temp_bool, err)
+		// -if it exists, update it
+		err = p.rp.UpdateProduct(new_id, product)
+		if err != nil {
+			return err
+		}
+		return nil
+
+	case errors.Is(err, repository.ErrProductExists):
+		// -if it exists, update it
+		err = p.rp.UpdateProduct(new_id, product)
+		if err != nil {
+			return err
+		}
+		return nil
+	case errors.Is(err, repository.ErrInvalidId):
+		return repository.ErrInvalidId
+	}
+	// -if it does not exist, add it
+	p.rp.AddNewProduct(product)
+
+	return nil
 }

@@ -10,7 +10,8 @@ import (
 var (
 	ErrProductNotFound = fmt.Errorf("product not found")
 	ErrProductExists   = fmt.Errorf("product already exists")
-	ErrIdExists        = fmt.Errorf("id already exists or is invalid")
+	ErrIdExists        = fmt.Errorf("id already exists")
+	ErrInvalidId       = fmt.Errorf("id is invalid")
 )
 
 // ProductsRepository is the repository for the products handler
@@ -76,16 +77,17 @@ func (p *ProductsRepository) IdExists(id int, codeValue string) (int, bool, erro
 	}
 	// Verify if the id is not greater than the last id
 	if !(id < p.lastId+1) {
-		return -1, true, ErrIdExists
+		return -1, true, ErrInvalidId
 	}
 	// Verify if exists a product with the same id in the repository
 
 	if _, ok := p.products[id]; ok {
-		return -1, true, ErrIdExists
+		return id, true, ErrIdExists
 	}
 	return id, false, nil
 }
 
+// Function to verify if a product with the same code_value exists in the repository
 func (p *ProductsRepository) VerifyCodeValue(codeValue string) bool {
 	for _, product := range p.products {
 		if product.CodeValue == codeValue {
@@ -94,4 +96,16 @@ func (p *ProductsRepository) VerifyCodeValue(codeValue string) bool {
 		}
 	}
 	return false
+}
+
+// Function to update a product in the repository
+
+func (p *ProductsRepository) UpdateProduct(id int, product internal.Products) error {
+	// Verify if the product exists in the repository
+	if _, ok := p.products[id]; !ok {
+		return ErrProductNotFound
+	}
+	// Update the product in the repository
+	p.products[id] = product
+	return nil
 }

@@ -111,8 +111,10 @@ func (s *Server) Run() error {
 	router.Get("/products/search", hd.ProductRange)
 
 	// Use the new handler to add a new product to the repository
-
 	router.Post("/products", hd.CreateProductInput)
+
+	// Use the update handler to update a product in the repository
+	router.Put("/products/{id}", hd.CreateOrUpdateProduct)
 
 	// Run the server and listen to the port
 	http.ListenAndServe(s.address, router)
