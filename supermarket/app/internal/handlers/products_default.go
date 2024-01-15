@@ -3,6 +3,7 @@ package internal
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 	"strconv"
 	"supermarket/app/internal"
 	repository "supermarket/app/internal/repository"
@@ -71,8 +72,26 @@ func NewProductsDefault(sv *services.ProductsDefault) *ProductsDefault {
 	}
 }
 
+// Verify Authentication
+
+func (h *ProductsDefault) VerifyAuthentication(r *http.Request) bool {
+	// Verify if the request has the header Authorization
+
+	token := r.Header.Get("TOKEN")
+	return token == os.Getenv("TOKEN")
+}
+
 // ProductsHandler is the handler for the products endpoint
 func (h *ProductsDefault) ProductsHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Verify if the user is authenticated
+	auth := h.VerifyAuthentication(r)
+
+	if !auth {
+		response.TextResponse(w, http.StatusUnauthorized, "Su usuario no se encuentra autorizado")
+		return
+	}
+
 	// Get the products from the service layer
 	products, err := h.sv.GetProducts()
 	if err != nil {
@@ -97,6 +116,14 @@ func (h *ProductsDefault) ProductsHandler(w http.ResponseWriter, r *http.Request
 
 // ProductByIDHandler is the handler for the product by id endpoint
 func (h *ProductsDefault) ProductByIDHandler(w http.ResponseWriter, r *http.Request) {
+	// Verify if the user is authenticated
+	auth := h.VerifyAuthentication(r)
+
+	if !auth {
+		response.TextResponse(w, http.StatusUnauthorized, "Su usuario no se encuentra autorizado")
+		return
+	}
+
 	// Get the id from the query string
 	idStr := chi.URLParam(r, "id")
 
@@ -129,6 +156,14 @@ func (h *ProductsDefault) ProductByIDHandler(w http.ResponseWriter, r *http.Requ
 // ProductRange is the handler for the product by price range endpoint
 
 func (h *ProductsDefault) ProductRange(w http.ResponseWriter, r *http.Request) {
+	// Verify if the user is authenticated
+	auth := h.VerifyAuthentication(r)
+
+	if !auth {
+		response.TextResponse(w, http.StatusUnauthorized, "Su usuario no se encuentra autorizado")
+		return
+	}
+
 	// Get the price from the query string
 
 	pricestr := r.URL.Query().Get("price")
@@ -165,6 +200,14 @@ func (h *ProductsDefault) ProductRange(w http.ResponseWriter, r *http.Request) {
 
 // CreateProductInput is the handler for the create product endpoint
 func (h *ProductsDefault) CreateProductInput(w http.ResponseWriter, r *http.Request) {
+
+	// Verify if the user is authenticated
+	auth := h.VerifyAuthentication(r)
+
+	if !auth {
+		response.TextResponse(w, http.StatusUnauthorized, "Su usuario no se encuentra autorizado")
+		return
+	}
 	// REQUEST
 
 	// Get the body request using the BodyRequest Struct
@@ -232,6 +275,13 @@ func (h *ProductsDefault) CreateProductInput(w http.ResponseWriter, r *http.Requ
 
 // Create or Update Product is the handler for the create or update product endpoint
 func (h *ProductsDefault) CreateOrUpdateProduct(w http.ResponseWriter, r *http.Request) {
+	// Verify if the user is authenticated
+	auth := h.VerifyAuthentication(r)
+
+	if !auth {
+		response.TextResponse(w, http.StatusUnauthorized, "Su usuario no se encuentra autorizado")
+		return
+	}
 
 	// REQUEST
 
@@ -280,6 +330,13 @@ func (h *ProductsDefault) CreateOrUpdateProduct(w http.ResponseWriter, r *http.R
 
 // PatchProduct is the handler for the patch product endpoint
 func (h *ProductsDefault) PatchProduct(w http.ResponseWriter, r *http.Request) {
+	// Verify if the user is authenticated
+	auth := h.VerifyAuthentication(r)
+
+	if !auth {
+		response.TextResponse(w, http.StatusUnauthorized, "Su usuario no se encuentra autorizado")
+		return
+	}
 
 	// REQUEST
 
@@ -347,6 +404,14 @@ func (h *ProductsDefault) PatchProduct(w http.ResponseWriter, r *http.Request) {
 
 // DeleteProduct is the handler for the delete product endpoint
 func (h *ProductsDefault) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	// Verify if the user is authenticated
+	auth := h.VerifyAuthentication(r)
+
+	if !auth {
+		response.TextResponse(w, http.StatusUnauthorized, "Su usuario no se encuentra autorizado")
+		return
+	}
+
 	// REQUEST
 
 	// Get the id from the query string

@@ -15,9 +15,7 @@ var (
 
 func main() {
 	// env
-	// ...
-
-	// app
+	// ...|	// app
 	// - config
 	app := application.CreateServer("")
 	// - run
