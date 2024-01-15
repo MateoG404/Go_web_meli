@@ -109,3 +109,10 @@ func (p *ProductsRepository) UpdateProduct(id int, product internal.Products) er
 	p.products[id] = product
 	return nil
 }
+
+// Function to delete a product from the repository
+
+func (p *ProductsRepository) DeleteProduct(id int) error {
+	delete(p.products, id)
+	return nil
+}

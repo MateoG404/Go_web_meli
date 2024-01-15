@@ -231,7 +231,6 @@ func (h *ProductsDefault) CreateProductInput(w http.ResponseWriter, r *http.Requ
 }
 
 // Create or Update Product is the handler for the create or update product endpoint
-
 func (h *ProductsDefault) CreateOrUpdateProduct(w http.ResponseWriter, r *http.Request) {
 
 	// REQUEST
@@ -279,6 +278,7 @@ func (h *ProductsDefault) CreateOrUpdateProduct(w http.ResponseWriter, r *http.R
 	response.JSON(w, http.StatusOK, product)
 }
 
+// PatchProduct is the handler for the patch product endpoint
 func (h *ProductsDefault) PatchProduct(w http.ResponseWriter, r *http.Request) {
 
 	// REQUEST
@@ -343,4 +343,30 @@ func (h *ProductsDefault) PatchProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	response.JSON(w, http.StatusOK, existingProduct)
 
+}
+
+// DeleteProduct is the handler for the delete product endpoint
+func (h *ProductsDefault) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	// REQUEST
+
+	// Get the id from the query string
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+
+	if err != nil {
+		response.TextResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	// PROCESS
+
+	// Delete the product from the database using the service layer
+	err = h.sv.DeleteProduct(id)
+
+	// RESPONSE
+
+	if err != nil {
+		response.TextResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	response.TextResponse(w, http.StatusOK, "Product deleted successfully")
 }

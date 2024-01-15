@@ -107,6 +107,7 @@ func (p *ProductsDefault) ValidateProductBussinessLogic(product internal.Product
 	return
 }
 
+// CreateOrUpdateProduct is the service for the create or update product endpoint
 func (p *ProductsDefault) CreateOrUpdateProduct(product internal.Products) error {
 	// External services
 
@@ -138,6 +139,26 @@ func (p *ProductsDefault) CreateOrUpdateProduct(product internal.Products) error
 	}
 	// -if it does not exist, add it
 	p.rp.AddNewProduct(product)
+
+	return nil
+}
+
+// DeleteProduct is the service for the delete product endpoint
+func (p *ProductsDefault) DeleteProduct(id int) error {
+	// External services
+
+	// Business logic
+
+	// -verify if the product exists
+	product, err := p.rp.GetProductById(id)
+	if err != nil {
+		return err
+	}
+	// -if it exists, delete it
+	err = p.rp.DeleteProduct(product.Id)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
