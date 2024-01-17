@@ -2,6 +2,10 @@ package handler
 
 import (
 	"app/internal"
+	repository "app/internal/repository"
+	"app/internal/service"
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/bootcamp-go/web/response"
@@ -10,6 +14,24 @@ import (
 // VehicleJSON is a struct that represents a vehicle in JSON format
 type VehicleJSON struct {
 	ID              int     `json:"id"`
+	Brand           string  `json:"brand"`
+	Model           string  `json:"model"`
+	Registration    string  `json:"registration"`
+	Color           string  `json:"color"`
+	FabricationYear int     `json:"year"`
+	Capacity        int     `json:"passengers"`
+	MaxSpeed        float64 `json:"max_speed"`
+	FuelType        string  `json:"fuel_type"`
+	Transmission    string  `json:"transmission"`
+	Weight          float64 `json:"weight"`
+	Height          float64 `json:"height"`
+	Length          float64 `json:"length"`
+	Width           float64 `json:"width"`
+}
+
+// Vehicle is a struct that represents a vehicle in JSON format
+type Vehicle struct {
+	Id              int     `json:"id"`
 	Brand           string  `json:"brand"`
 	Model           string  `json:"model"`
 	Registration    string  `json:"registration"`
@@ -74,5 +96,67 @@ func (h *VehicleDefault) GetAll() http.HandlerFunc {
 			"message": "success",
 			"data":    data,
 		})
+	}
+}
+
+// CreateVehicle is a method that returns a handler for the route POST /vehicles
+
+// CreateVehicle is a method that returns a handler for the route POST /vehicles
+func (h *VehicleDefault) CreateVehicle() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("Entro aca")
+		// Request
+
+		// - Get the body of the request
+		var body VehicleJSON
+
+		// - Serialize the body of the request
+		err := json.NewDecoder(r.Body).Decode(&body)
+		if err != nil {
+			response.JSON(w, http.StatusBadRequest, map[string]interface{}{"message": "Invalid vehicle data", "error": err.Error()})
+			return
+		}
+
+		// Process
+
+		// - Create the vehicle using the service to serialize the data
+		vehicle := internal.Vehicle{
+			Id: body.ID,
+			VehicleAttributes: internal.VehicleAttributes{
+				Brand:           body.Brand,
+				Model:           body.Model,
+				Registration:    body.Registration,
+				Color:           body.Color,
+				FabricationYear: body.FabricationYear,
+				Capacity:        body.Capacity,
+				MaxSpeed:        body.MaxSpeed,
+				FuelType:        body.FuelType,
+				Transmission:    body.Transmission,
+				Weight:          body.Weight,
+				Dimensions: internal.Dimensions{
+					Height: body.Height,
+					Length: body.Length,
+					Width:  body.Width,
+				},
+			},
+		}
+
+		fmt.Println("Vehicle: ", vehicle, "ID: ", vehicle.Id)
+		// Response
+		// - Send the vehicle to the service to create it
+
+		err = h.sv.CreateVehicle(vehicle)
+		if err != nil {
+			switch err {
+			case repository.ErrVehicleAlreadyExists:
+				response.JSON(w, http.StatusConflict, map[string]interface{}{"message": "Vehicle already exists", "error": err.Error()})
+			case service.ErrInvalidInputData:
+				response.JSON(w, http.StatusBadRequest, map[string]interface{}{"message": "Invalid vehicle data or incomplete", "error": err.Error()})
+			}
+			return
+		}
+
+		response.JSON(w, http.StatusCreated, map[string]interface{}{"message": "Vehicle created successfully"})
+
 	}
 }
