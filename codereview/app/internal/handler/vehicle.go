@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/bootcamp-go/web/response"
+	"github.com/go-chi/chi/v5"
 )
 
 // VehicleJSON is a struct that represents a vehicle in JSON format
@@ -157,6 +158,38 @@ func (h *VehicleDefault) CreateVehicle() http.HandlerFunc {
 		}
 
 		response.JSON(w, http.StatusCreated, map[string]interface{}{"message": "Vehicle created successfully"})
+		// chi.URLParam(r, "id")
+		// chi.QueryParam(r, "id")
+
+	}
+}
+
+// GetByColorAndYear is a method that returns a handler for the route GET /vehicles/color/{color}/year/{year}
+
+func (h *VehicleDefault) GetByColorAndYear() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// request
+
+		// - Get the color and year from the URL
+
+		color := chi.URLParam(r, "color")
+		year := chi.URLParam(r, "year")
+
+		// process
+
+		// - Get the vehicles by color and year using the service
+
+		vehicles, err := h.sv.FindVehicleByColorYear(color, year)
+
+		// - Check if there was an error about the query search
+		if err != nil {
+			response.JSON(w, http.StatusBadRequest, map[string]interface{}{"message": "Not exist vehicles with the color and the year", "error": err.Error()})
+			return
+		}
+
+		// response
+		// if there are vehicles with the color and the year, return them
+		response.JSON(w, http.StatusOK, map[string]interface{}{"message": "success", "data": vehicles})
 
 	}
 }

@@ -4,6 +4,9 @@ import (
 	"app/internal"
 	"app/internal/repository"
 	"errors"
+	"fmt"
+	"strconv"
+	"strings"
 )
 
 var (
@@ -86,4 +89,37 @@ func (s *VehicleDefault) CreateVehicle(v internal.Vehicle) (err error) {
 		return err
 	}
 	return nil
+}
+
+// FindVehicleByColorYear is a method that returns a map of vehicles by color and year of fabrication using the service and the repository
+
+func (s *VehicleDefault) FindVehicleByColorYear(color string, fabricationYear string) (v map[int]internal.Vehicle, err error) {
+	// Bussines logic
+
+	// - Convert the year of fabrication to int
+	fabricationYearInt, err := strconv.Atoi(fabricationYear)
+	if err != nil {
+		return nil, ErrInvalidInputData
+	}
+
+	// - validate color and year of fabrication
+	if color == "" || fabricationYearInt == 0 {
+		return nil, ErrInvalidInputData
+	}
+
+	// Convert uppercase color title
+	color = strings.Title(color)
+
+	// Process using the repository
+	fmt.Println("color", color, "fabricationYearInt", fabricationYearInt)
+
+	// - find vehicles by color and year of fabrication
+	vehicles, err := s.rp.FindVehicleByColorYear(color, fabricationYearInt)
+
+	// - return vehicles or error
+	if err != nil {
+		return nil, err
+	}
+
+	return vehicles, nil
 }

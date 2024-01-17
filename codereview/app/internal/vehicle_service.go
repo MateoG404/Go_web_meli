@@ -10,4 +10,10 @@ type VehicleService interface {
 	ValidationInputData(id int, brand, model, registration, color string, fabricationYear, capacity int, maxspeed float64, fueltype, transmission string, weight, height, length, width float64) bool
 	// CreateVehicle is a method that creates a vehicle
 	CreateVehicle(v Vehicle) (err error)
+	// FindVehicleById is a method that returns a vehicle by id
+	FindVehicleById(id int) bool
+	// FindVehicleByRegistration is a method that returns a vehicle by registration
+	FindVehicleByRegistration(registration string) bool
+	// FindVehicleByColorYear is a method that returns all the vehicle with that color and year
+	FindVehicleByColorYear(color string, fabricationYear string) (v map[int]Vehicle, err error)
 }
