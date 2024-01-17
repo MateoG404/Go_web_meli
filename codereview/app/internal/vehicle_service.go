@@ -16,4 +16,6 @@ type VehicleService interface {
 	FindVehicleByRegistration(registration string) bool
 	// FindVehicleByColorYear is a method that returns all the vehicle with that color and year
 	FindVehicleByColorYear(color string, fabricationYear string) (v map[int]Vehicle, err error)
+	// FindVehicleByBrandYear is a method that returns all the vehicle with that brand and year
+	FindVehicleByBrandYear(brand string, startYear string, endYear string) (v map[int]Vehicle, err error)
 }

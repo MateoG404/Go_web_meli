@@ -12,4 +12,6 @@ type VehicleRepository interface {
 	CreateVehicle(v Vehicle) (err error)
 	// FindVehicleByColorYear is a method that returns all the vehicle with that color and year
 	FindVehicleByColorYear(color string, fabricationYear int) (v map[int]Vehicle, err error)
+	// FindVehicleByBrandYear is a method that returns all the vehicle with that brand and year
+	FindVehicleByBrandYear(brand string, startYear int, endYear int) (v map[int]Vehicle, err error)
 }

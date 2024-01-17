@@ -91,3 +91,28 @@ func (r *VehicleMap) FindVehicleByColorYear(color string, fabricationYear int) (
 	// Return the map of vehicles
 	return vehicle, nil
 }
+
+// FindVehicleByBrandYear is a method that returns all the vehicle with that brand and year
+
+func (r *VehicleMap) FindVehicleByBrandYear(brand string, startYear int, endYear int) (v map[int]internal.Vehicle, err error) {
+
+	// Create an empty map of vehicles
+	vehicle := make(map[int]internal.Vehicle)
+	// Constant to know the amount of vehicles with that brand and year
+	var const_v int = 0
+
+	// Iterate for all the databases
+	for _, value := range r.db {
+		if value.Brand == brand && value.FabricationYear >= startYear && value.FabricationYear <= endYear {
+			vehicle[const_v] = value
+			const_v += 1
+		}
+	}
+
+	// Return the map of vehicles or error if there are no vehicles with that brand and year
+
+	if const_v == 0 {
+		return nil, ErrVehicleNotFound
+	}
+	return vehicle, nil
+}

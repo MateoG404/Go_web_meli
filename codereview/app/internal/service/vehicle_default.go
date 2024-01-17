@@ -123,3 +123,39 @@ func (s *VehicleDefault) FindVehicleByColorYear(color string, fabricationYear st
 
 	return vehicles, nil
 }
+
+//FindVehicleByBrandYear is a method that returns a map of vehicles by brand and the start and end years of fabrication using the service and the repository
+
+func (s *VehicleDefault) FindVehicleByBrandYear(brand string, startYear string, endYear string) (v map[int]internal.Vehicle, err error) {
+
+	// Bussines logic
+
+	// - Convert the start and end years of fabrication to int
+	startYearInt, err := strconv.Atoi(startYear)
+	if err != nil {
+		return nil, ErrInvalidInputData
+	}
+	endYearInt, err := strconv.Atoi(endYear)
+	if err != nil {
+		return nil, ErrInvalidInputData
+	}
+	// - Title the brand string
+	brand = strings.Title(brand)
+
+	// - validate brand and start and end years of fabrication
+	if brand == "" || startYearInt == 0 || endYearInt == 0 {
+		return nil, ErrInvalidInputData
+	}
+	// - validate start year is less than end year
+	if startYearInt > endYearInt {
+		return nil, ErrInvalidInputData
+	}
+
+	// Process using the repository
+	vehicles, err := s.rp.FindVehicleByBrandYear(brand, startYearInt, endYearInt)
+
+	if err != nil {
+		return nil, err
+	}
+	return vehicles, nil
+}
