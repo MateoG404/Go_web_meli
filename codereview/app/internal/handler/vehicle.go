@@ -188,6 +188,7 @@ func (h *VehicleDefault) GetByBrandAndYear() http.HandlerFunc {
 
 		// Process
 		vehicles, err := h.sv.FindVehicleByBrandYear(brand, start_year, end_year)
+
 		if err != nil {
 			switch err {
 			case repository.ErrVehicleNotFound:
@@ -196,6 +197,8 @@ func (h *VehicleDefault) GetByBrandAndYear() http.HandlerFunc {
 			case service.ErrInvalidInputData:
 				response.JSON(w, http.StatusBadRequest, map[string]interface{}{"message": "Invalid vehicle input data or incomplete", "error": err.Error()})
 				return
+			default:
+				response.JSON(w, http.StatusInternalServerError, map[string]interface{}{"message": "Internal server error", "error": err.Error()})
 			}
 
 		}

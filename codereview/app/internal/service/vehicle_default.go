@@ -139,6 +139,14 @@ func (s *VehicleDefault) FindVehicleByBrandYear(brand string, startYear string, 
 	if err != nil {
 		return nil, ErrInvalidInputData
 	}
+
+	brand_temp, err := strconv.Atoi(brand)
+
+	if !(err != nil) {
+		fmt.Println(brand_temp)
+		return nil, ErrInvalidInputData
+	}
+
 	// - Title the brand string
 	brand = strings.Title(brand)
 
@@ -146,6 +154,7 @@ func (s *VehicleDefault) FindVehicleByBrandYear(brand string, startYear string, 
 	if brand == "" || startYearInt == 0 || endYearInt == 0 {
 		return nil, ErrInvalidInputData
 	}
+
 	// - validate start year is less than end year
 	if startYearInt > endYearInt {
 		return nil, ErrInvalidInputData

@@ -98,6 +98,7 @@ func (r *VehicleMap) FindVehicleByBrandYear(brand string, startYear int, endYear
 
 	// Create an empty map of vehicles
 	vehicle := make(map[int]internal.Vehicle)
+
 	// Constant to know the amount of vehicles with that brand and year
 	var const_v int = 0
 
@@ -110,7 +111,6 @@ func (r *VehicleMap) FindVehicleByBrandYear(brand string, startYear int, endYear
 	}
 
 	// Return the map of vehicles or error if there are no vehicles with that brand and year
-
 	if const_v == 0 {
 		return nil, ErrVehicleNotFound
 	}
